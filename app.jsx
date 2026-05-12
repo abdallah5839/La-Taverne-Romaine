@@ -1,4 +1,4 @@
-const { useState } = React;
+const { useState, useEffect, useRef, useLayoutEffect } = React;
 
 /* ---------- Image library (Unsplash) ---------- */
 const IMG = {
@@ -859,12 +859,53 @@ function Mobile(){
 /* ============================================================
    APP — Desktop / Mobile toggle
 ============================================================ */
+/* Scales a fixed-width mockup down to fit the available viewport width. */
+function ScaledFrame({ width, children, rounded=false }){
+  const wrapRef = useRef(null);
+  const innerRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const [innerH, setInnerH] = useState(0);
+
+  useLayoutEffect(() => {
+    function update(){
+      if (!wrapRef.current || !innerRef.current) return;
+      const available = wrapRef.current.clientWidth;
+      const s = Math.min(1, available / width);
+      setScale(s);
+      setInnerH(innerRef.current.offsetHeight);
+    }
+    update();
+    const ro = new ResizeObserver(update);
+    if (innerRef.current) ro.observe(innerRef.current);
+    if (wrapRef.current) ro.observe(wrapRef.current);
+    window.addEventListener("resize", update);
+    return () => { ro.disconnect(); window.removeEventListener("resize", update); };
+  }, [width]);
+
+  return (
+    <div ref={wrapRef} className="w-full flex justify-center">
+      <div
+        style={{ width: width * scale, height: innerH * scale }}
+        className={"relative " + (rounded ? "rounded-[28px] overflow-hidden ring-1 ring-[#A88746]/15 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]" : "shadow-[0_30px_60px_-20px_rgba(0,0,0,0.45)]")}
+      >
+        <div
+          ref={innerRef}
+          style={{ width, transform: `scale(${scale})`, transformOrigin: "top left" }}
+          className="absolute top-0 left-0"
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App(){
   const [mode,setMode] = useState("desktop");
   return (
     <div className="min-h-screen bg-[#221d18] relative">
       {/* FLOATING TOGGLE */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed bottom-5 sm:bottom-8 left-1/2 -translate-x-1/2 z-50">
         <div className="flex items-center bg-[#1A1714] p-1.5 rounded-full border border-[#A88746]/30 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.6)]">
           {[
             ["desktop","Desktop",
@@ -877,7 +918,7 @@ function App(){
             <button
               key={k}
               onClick={()=>setMode(k)}
-              className={"flex items-center gap-2.5 px-6 h-11 rounded-full text-[12px] tracking-mini uppercase font-medium transition " +
+              className={"flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 h-10 sm:h-11 rounded-full text-[11px] sm:text-[12px] tracking-mini uppercase font-medium transition " +
                 (mode===k ? "bg-[#C9A86B] text-[#1A1714]" : "text-[#EDE5D6]/70 hover:text-[#EDE5D6]")}
             >
               {icon}
@@ -888,15 +929,15 @@ function App(){
       </div>
 
       {/* STAGE */}
-      <div className="stage py-10 px-6 overflow-x-auto" style={{minHeight:"100vh"}}>
+      <div className="stage py-8 sm:py-10 px-3 sm:px-6 pb-32" style={{minHeight:"100vh"}}>
         {mode==="desktop" ? (
-          <div className="shadow-soft rounded-sm overflow-hidden mx-auto" style={{width:1440}}>
+          <ScaledFrame width={1440}>
             <Desktop/>
-          </div>
+          </ScaledFrame>
         ) : (
-          <div className="shadow-soft mx-auto" style={{width:390}}>
+          <ScaledFrame width={390} rounded>
             <Mobile/>
-          </div>
+          </ScaledFrame>
         )}
       </div>
     </div>
