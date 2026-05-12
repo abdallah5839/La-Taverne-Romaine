@@ -576,14 +576,6 @@ function Desktop(){
 function Mobile(){
   return (
     <div style={{width:390}} className="bg-[#F4EFE6] text-[#1A1714] mx-auto overflow-hidden">
-      {/* status bar */}
-      <div className="h-11 bg-[#1A1714] text-[#F4EFE6] text-[12px] flex items-center justify-between px-6 font-medium">
-        <span>9:41</span>
-        <span className="flex gap-1 items-center">
-          <span className="w-4 h-2.5 border border-[#F4EFE6] rounded-sm relative"><span className="absolute inset-0.5 bg-[#F4EFE6] rounded-[1px]"></span></span>
-        </span>
-      </div>
-
       {/* nav */}
       <div className="flex items-center justify-between px-5 h-16 bg-[#F4EFE6] border-b border-[#A88746]/15">
         <div className="w-9 h-9 border border-[#1A1714]/15 rounded-full flex items-center justify-center">
@@ -860,8 +852,6 @@ function Mobile(){
         </div>
       </footer>
 
-      {/* home indicator */}
-      <div className="bg-[#0F0D0B] h-8 flex items-center justify-center"><span className="w-32 h-1 bg-[#F4EFE6] rounded-full"></span></div>
     </div>
   );
 }
@@ -872,53 +862,39 @@ function Mobile(){
 function App(){
   const [mode,setMode] = useState("desktop");
   return (
-    <div className="min-h-screen bg-[#221d18]">
-      {/* TOGGLE BAR */}
-      <div className="sticky top-0 z-50 bg-[#1A1714]/95 backdrop-blur border-b border-[#A88746]/15 grain">
-        <div className="max-w-[1440px] mx-auto px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-2 h-2 rounded-full bg-[#B4502B]"></div>
-            <div>
-              <div className="text-[9px] tracking-micro uppercase text-[#C9A86B]">Concept · maquette statique</div>
-              <div className="text-[#F4EFE6] text-[13px] font-medium">La Taverne Romaine — refonte</div>
-            </div>
-          </div>
-
-          <div className="flex items-center bg-[#0F0D0B] p-1 rounded-full border border-[#A88746]/20">
-            {[
-              ["desktop","Desktop · 1440",
-                <svg key="d" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/></svg>
-              ],
-              ["mobile","Mobile · 390",
-                <svg key="m" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
-              ],
-            ].map(([k,label,icon])=>(
-              <button
-                key={k}
-                onClick={()=>setMode(k)}
-                className={"flex items-center gap-2 px-4 h-9 rounded-full text-[11px] tracking-mini uppercase transition " +
-                  (mode===k ? "bg-[#B4502B] text-[#F4EFE6]" : "text-[#EDE5D6]/55 hover:text-[#EDE5D6]")}
-              >
-                {icon}
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="text-[10px] tracking-micro uppercase text-[#EDE5D6]/45 hidden md:block">
-            Aperçu visuel · non interactif
-          </div>
+    <div className="min-h-screen bg-[#221d18] relative">
+      {/* FLOATING TOGGLE */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex items-center bg-[#1A1714] p-1.5 rounded-full border border-[#A88746]/30 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.6)]">
+          {[
+            ["desktop","Desktop",
+              <svg key="d" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M8 21h8M12 17v4"/></svg>
+            ],
+            ["mobile","Mobile",
+              <svg key="m" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+            ],
+          ].map(([k,label,icon])=>(
+            <button
+              key={k}
+              onClick={()=>setMode(k)}
+              className={"flex items-center gap-2.5 px-6 h-11 rounded-full text-[12px] tracking-mini uppercase font-medium transition " +
+                (mode===k ? "bg-[#C9A86B] text-[#1A1714]" : "text-[#EDE5D6]/70 hover:text-[#EDE5D6]")}
+            >
+              {icon}
+              <span>{label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* STAGE */}
-      <div className="stage py-10 px-6 overflow-x-auto" style={{minHeight:"calc(100vh - 64px)"}}>
+      <div className="stage py-10 px-6 overflow-x-auto" style={{minHeight:"100vh"}}>
         {mode==="desktop" ? (
           <div className="shadow-soft rounded-sm overflow-hidden mx-auto" style={{width:1440}}>
             <Desktop/>
           </div>
         ) : (
-          <div className="shadow-soft rounded-[36px] overflow-hidden mx-auto border-[10px] border-[#0F0D0B]" style={{width:410}}>
+          <div className="shadow-soft mx-auto" style={{width:390}}>
             <Mobile/>
           </div>
         )}
